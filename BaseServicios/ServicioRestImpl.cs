@@ -5,15 +5,16 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+
 namespace BaseServicios
 {
-    public class ServicioRestImpl<TModelo>: IServiciosRest<TModelo>
+    public class ServicioRestImpl<TModelo> : IServiciosRest<TModelo>
     {
         private String url; // url donde esta el servicio
         private bool auth; // indicar si este servicio esta autenticado o no
         private String user; // para indicar cual es el user
         private String pass; // para indicar cual es el pwd
-        
+
         public ServicioRestImpl(String url, bool auth = false, String user = null, String pass = null)
         {
             this.url = url;
@@ -41,11 +42,11 @@ namespace BaseServicios
                     var contenido = new StringContent(datos); // mi objeto serializado
                     contenido.Headers.ContentType = new MediaTypeHeaderValue("application/json");
                     var r = await client.PostAsync(new Uri(url), contenido); // no cierra hasta que termine
-                    if(r.IsSuccessStatusCode)
+                    if (!r.IsSuccessStatusCode)
                         throw new Exception("Fallo gordo");
                     var objSerializado = await r.Content.ReadAsStringAsync();
                     return Serializacion<TModelo>.Deserializar(objSerializado);
-                 }
+                }
             }
         }
 
@@ -55,7 +56,7 @@ namespace BaseServicios
             //var datos = Serializacion<TModelo>.Serializar(id);
             using (var handler = new HttpClientHandler())
             {
-                // define la cabecera de auenticación
+                // define la cabecera de Autenticación
                 if (auth)
                 {
                     handler.Credentials = new NetworkCredential(user, pass);
@@ -71,21 +72,20 @@ namespace BaseServicios
             }
         }
 
-        public List<TModelo> Get(String paramUrl=null)
+        public List<TModelo> Get(String paramUrl = null)
         {
             List<TModelo> lista;
-
             var urlDest = url;
 
             if (paramUrl != null)
                 urlDest += paramUrl;
 
-            var request = WebRequest.Create(url);
+            var request = WebRequest.Create(urlDest);
             if (auth)
             {
-                request.Credentials = new NetworkCredential(user,pass);
+                request.Credentials = new NetworkCredential(user, pass);
             }
-            request.Method = "Get";
+            request.Method = "GET";
             var response = request.GetResponse();
             // el stream es la tuberia, es el canal que permite obtener datos
             // dentro lleva la respuesta
@@ -111,13 +111,13 @@ namespace BaseServicios
         public TModelo Get(int id)
         {
             TModelo objeto;
-            var request = WebRequest.Create(url+"/"+id);
+            var request = WebRequest.Create(url + "/" + id);
             if (auth)
             {
                 request.Credentials = new NetworkCredential(user, pass);
             }
 
-            request.Method = "Get";
+            request.Method = "GET";
             var response = request.GetResponse();
             // el stream es la tuberia, es el canal que permite obtener datos
             // dentro lleva la respuesta
@@ -176,6 +176,8 @@ namespace BaseServicios
                     var contenido = new StringContent(datos); // mi objeto serializado
                     contenido.Headers.ContentType = new MediaTypeHeaderValue("application/json");
                     var r = await client.PutAsync(new Uri(url), contenido); // no cierra hasta que termine
+                    if (!r.IsSuccessStatusCode)
+                        throw new Exception("Fallo gordo");
                 }
             }
 
