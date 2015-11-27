@@ -12,9 +12,9 @@ namespace BaseServicios
 
         Task Update(TModelo model);
 
-        Task Delete (TModelo model);
+        Task Delete (int id);
 
-        List<TModelo> Get();
+        List<TModelo> Get(String paramUrl=null);
 
         List<TModelo> Get(Dictionary<String,String> param );
 
